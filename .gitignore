@@ -1,0 +1,36 @@
+# dependências
+/node_modules
+/.pnp
+.pnp.js
+
+# testes
+/coverage
+
+# build do Next.js
+/.next/
+/out/
+
+# produção
+/build
+
+# variáveis de ambiente
+.env
+.env*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# editor
+.DS_Store
+*.pem
+.vscode/
+.idea/
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
