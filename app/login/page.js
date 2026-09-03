@@ -1,22 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSessao } from '@/components/SessaoProvider'
+import { Alerta } from '@/components/Campo'
 
 export default function Login() {
   const router = useRouter()
+  const { usuario, entrar, carregando: carregandoSessao } = useSessao()
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState(null)
   const [carregando, setCarregando] = useState(false)
 
-  function entrar(e) {
+  useEffect(() => {
+    if (!carregandoSessao && usuario) router.replace('/central')
+  }, [usuario, carregandoSessao, router])
+
+  async function aoEnviar(e) {
     e.preventDefault()
+    setErro(null)
     setCarregando(true)
-    setTimeout(() => router.push('/central'), 500)
+    try {
+      await entrar(email, senha)
+      router.push('/central')
+    } catch (err) {
+      setErro(err.message)
+      setCarregando(false)
+    }
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="grid w-full max-w-4xl overflow-hidden rounded-md border border-ink/10 bg-white/70 shadow-[0_1px_2px_rgba(16,24,39,0.04)] md:grid-cols-2">
-        {/* Coluna institucional */}
         <div className="hidden flex-col justify-between bg-ink p-10 text-parchment md:flex">
           <div>
             <p className="font-mono text-xs uppercase tracking-widest text-bronze-soft">
@@ -37,14 +53,13 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Formulário */}
         <div className="p-10">
           <h2 className="font-display text-2xl font-semibold text-ink">Entrar</h2>
           <p className="mt-1 text-sm text-slate">
             Informe suas credenciais para acessar a Central do Inventário.
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={entrar}>
+          <form className="mt-8 space-y-5" onSubmit={aoEnviar}>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-ink" htmlFor="email">
                 E-mail
@@ -53,6 +68,8 @@ export default function Login() {
                 id="email"
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="nome@escritorio.com.br"
                 className="w-full rounded-sm border border-ink/15 bg-white px-3 py-2.5 text-sm text-ink placeholder:text-slate/50 focus:border-bronze"
               />
@@ -71,15 +88,14 @@ export default function Login() {
                 id="senha"
                 type="password"
                 required
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
                 placeholder="••••••••"
                 className="w-full rounded-sm border border-ink/15 bg-white px-3 py-2.5 text-sm text-ink focus:border-bronze"
               />
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-slate">
-              <input type="checkbox" className="h-4 w-4 rounded-sm border-ink/30" />
-              Manter conectado neste dispositivo
-            </label>
+            <Alerta mensagem={erro} />
 
             <button
               type="submit"
